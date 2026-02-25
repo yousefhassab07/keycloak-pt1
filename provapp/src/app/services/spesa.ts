@@ -10,8 +10,7 @@ export class SpesaService {
   private http = inject(HttpClient);
   private keycloak = inject(Keycloak);
 
-  // INSERISCI QUI IL TUO URL DI FLASK (Porta 5000)
-  // Esempio: 'https://miniature-giggle-...-5000.app.github.dev'
+  // USA IL TUO URL FLASK (Porta 5000)
   private baseUrl = 'https://miniature-giggle-x567jw6j7xpqc6gv-5000.app.github.dev';
 
   private getHeaders(): HttpHeaders {
@@ -20,17 +19,26 @@ export class SpesaService {
     });
   }
 
-  getItems(): Observable<{ items: string[]; user: string }> {
-    return this.http.get<{ items: string[]; user: string }>(
+  // Restituisce any perché ora gli oggetti hanno {id, item}
+  getItems(): Observable<{ items: any[]; user: string }> {
+    return this.http.get<{ items: any[]; user: string }>(
       `${this.baseUrl}/items`,
       { headers: this.getHeaders() }
     );
   }
 
-  addItem(item: string): Observable<{ items: string[] }> {
-    return this.http.post<{ items: string[] }>(
+  addItem(item: string): Observable<any> {
+    return this.http.post<any>(
       `${this.baseUrl}/items`,
       { item },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // NUOVA FUNZIONE PER ELIMINARE
+  deleteItem(id: number): Observable<any> {
+    return this.http.delete<any>(
+      `${this.baseUrl}/items/${id}`,
       { headers: this.getHeaders() }
     );
   }

@@ -1,7 +1,7 @@
 <h1>Lista della spesa</h1>
 
 <form (ngSubmit)="addItem()">
-  <input[value]="newItem()"
+  <input [value]="newItem()"
     (input)="newItem.set($any($event.target).value)"
     placeholder="Es. Latte, Pane..."
     required
@@ -9,7 +9,7 @@
   <button type="submit">Aggiungi</button>
 </form>
 
-@if (error()) {git 
+@if (error()) {
   <p style="color: red;">{{ error() }}</p>
 }
 
@@ -22,3 +22,12 @@
     }
   </ul>
 }
+
+<ul>
+  @for (item of items(); track item.id) {
+    <li>
+      {{ item.item }} 
+      <button (click)="deleteItem(item.id)">❌</button>
+    </li>
+  }
+</ul>
