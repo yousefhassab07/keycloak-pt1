@@ -6,6 +6,8 @@ export class AuthService {
 private keycloak = inject(Keycloak);
 
 
+
+
 login(): void {
 this.keycloak.login({ redirectUri: window.location.origin });
 }
@@ -24,6 +26,13 @@ return !!this.keycloak.authenticated;
 }
 
 
+//controlla se l'utente ha un determinato ruolo
+//lo useremo nell'html con authService.hasRole('user_plus')
+hasRole(role: string): boolean {
+return this.keycloak.tokenParsed?.['realm_access']?.roles?.includes(role) ??
+false;
+}
+
 getUsername(): string {
 return this.keycloak.tokenParsed?.['preferred_username'] ?? '';
 }
@@ -35,3 +44,5 @@ getToken(): string | undefined {
 return this.keycloak.token;
 }
 }
+
+
