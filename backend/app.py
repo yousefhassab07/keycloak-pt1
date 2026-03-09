@@ -1,48 +1,51 @@
 from flask import Flask, request, jsonify, g
 from flask_cors import CORS
 from auth import require_auth, require_role
+from db import Database
 
 app = Flask(__name__)
-CORS(app)
+# Configurazione CORS più robusta
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-#lista condivisa tra tutti gli utenti
-#niente db per ora (ve lo lascio come esercizio)
-#se l'avete già fatto vedete voi come fare
-shopping_list: list = []
-counter: int = 1
+db = Database()
 
-@app.route("/items", methods=["GET"])
+@app.route("/voti", methods=["GET"])
 @require_auth
-def get_items():
-    #tutti gli utenti autenticati possono vedere la lista
-    return jsonify({"items": shopping_list})
+def get_voti():
+    try:
+        ruoli_utente = g.user.get("realm_access", {}).get("roles", [])
+        username = g.user.get("preferred_username")
 
-@app.route("/items", methods=["POST"])
+        if "docente" in ruoli_utente:
+            voti = db.esegui_query("SELECT * FROM voti")
+            return jsonify({"voti": voti})
+        elif "studente" in ruoli_utente:
+            voti = db.esegui_query("SELECT * FROM voti WHERE nome_studente = %s", (username,))
+            return jsonify({"voti": voti})
+        else:
+            return jsonify({"error": "Permesso negato"}), 403
+    except Exception as e:
+        print(f"Errore GET: {e}") # Questo apparirà nel terminale
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/voti", methods=["POST"])
 @require_auth
-@require_role("user_plus")  #solo user_plus può aggiungere
-def add_item():
-    global counter
-    data = request.get_json()
-    item = data.get("item", "").strip()
-    if not item:
-        return jsonify({"error": "Item non può essere vuoto"}), 400
+@require_role("docente")
+def add_voto():
+    try:
+        data = request.get_json()
+        nome_studente = data.get("nome_studente")
+        materia = data.get("materia")
+        voto = data.get("voto")
 
-    nuovo = {"id": counter, "nome": item}
-    shopping_list.append(nuovo)
-    counter += 1
-
-    return jsonify({"message": "Aggiunto", "items": shopping_list}), 201
-
-@app.route("/items/<int:item_id>", methods=["DELETE"])
-@require_auth
-@require_role("user_plus")  #solo user_plus può eliminare
-def delete_item(item_id):
-    for i, item in enumerate(shopping_list):
-        if item["id"] == item_id:
-            shopping_list.pop(i)
-            return '', 204
-
-    return jsonify({"error": "Elemento non trovato"}), 404
+        db.esegui_query(
+            "INSERT INTO voti (nome_studente, materia, voto) VALUES (%s, %s, %s)",
+            (nome_studente, materia, voto)
+        )
+        return jsonify({"message": "Voto inserito"}), 201
+    except Exception as e:
+        print(f"Errore POST: {e}") # Questo apparirà nel terminale
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
