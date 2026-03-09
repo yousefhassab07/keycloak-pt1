@@ -1,0 +1,20 @@
+<h2>Area Docente: Registro Elettronico</h2>
+
+<div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+  <h3>Inserisci Nuovo Voto</h3>
+  <input type="text" [(ngModel)]="nome" placeholder="Username Studente" required>
+  <input type="text"[(ngModel)]="materia" placeholder="Materia" required>
+  <input type="number" [(ngModel)]="voto" placeholder="Voto" required>
+  <button (click)="inserisciVoto()">Salva Voto</button>
+  
+  @if (errore) { <p style="color: red;">{{ errore }}</p> }
+</div>
+
+<h3>Tutti i voti della classe:</h3>
+<ul>
+  @for (v of voti(); track v.id) {
+    <li>Studente: <b>{{ v.nome_studente }}</b> | Materia: {{ v.materia }} | Voto: <b>{{ v.voto }}</b></li>
+  } @empty {
+    <p>Nessun voto presente nel registro.</p>
+  }
+</ul>

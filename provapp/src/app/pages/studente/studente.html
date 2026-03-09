@@ -1,0 +1,9 @@
+<h2>Area Studente: I Miei Voti</h2>
+
+<ul>
+  @for (v of voti(); track v.id) {
+    <li>Materia: {{ v.materia }} | Voto: <b [style.color]="v.voto >= 6 ? 'green' : 'red'">{{ v.voto }}</b></li>
+  } @empty {
+    <p>Non hai ancora nessun voto.</p>
+  }
+</ul>
