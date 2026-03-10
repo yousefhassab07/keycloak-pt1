@@ -7,7 +7,7 @@ class Database:
         self.port = 16366
         self.user = 'avnadmin'
         self.password = 'AVNS_b9uUZMqcvZOz-7cHDDp'
-        self.db = 'defaultdb' # Il database si chiama defaultdb nel tuo URI
+        self.db = 'wrapper' # Il database si chiama defaultdb nel tuo URI
 
     def get_connection(self):
         return pymysql.connect(
